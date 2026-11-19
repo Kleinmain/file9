@@ -1,5 +1,7 @@
 import {
   ArrowDownToLine,
+  BookOpen,
+  CheckCircle2,
   Clock3,
   FileAudio,
   FileText,
@@ -8,6 +10,7 @@ import {
   LoaderCircle,
   LockKeyhole,
   Search,
+  Share2,
   ShieldCheck,
   Trash2,
   UploadCloud,
@@ -53,7 +56,7 @@ type PublicFile = {
 type ManagedFile = PublicFile & { deleteToken: string }
 type UploadState = 'ready' | 'uploading' | 'done' | 'error'
 type QueuedFile = { file: File; state: UploadState; error?: string }
-type View = 'discover' | 'uploads'
+type View = 'discover' | 'uploads' | 'guide'
 
 const formatBytes = (bytes: number) => {
   if (bytes < 1024) return `${bytes} B`
@@ -103,6 +106,13 @@ function App() {
   )
   const fileInput = useRef<HTMLInputElement>(null)
   const isAdmin = new URLSearchParams(window.location.search).has('admin')
+
+  const goToUpload = () => {
+    setView('discover')
+    window.requestAnimationFrame(() => {
+      document.getElementById('upload')?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }
 
   const loadFiles = useCallback(async () => {
     setIsLoading(true)
@@ -277,15 +287,116 @@ function App() {
             My uploads
             {managedFiles.length > 0 && <span className="nav-count">{managedFiles.length}</span>}
           </button>
+          <button
+            className={view === 'guide' ? 'active' : ''}
+            type="button"
+            onClick={() => setView('guide')}
+          >
+            Guide
+          </button>
         </nav>
-        <a className="header-cta" href="#upload">
+        <button className="header-cta" type="button" onClick={goToUpload}>
           <UploadCloud size={17} />
           Upload
-        </a>
+        </button>
       </header>
 
       <main>
-        <section className="hero-section">
+        {view === 'guide' ? (
+          <section className="guide-section">
+            <div className="guide-hero">
+              <p className="eyebrow">
+                <span />
+                Simple from start to finish
+              </p>
+              <h1>How to use file9</h1>
+              <p>
+                Upload a small file, choose when it should disappear, and let
+                others preview or download it from the public shelf.
+              </p>
+            </div>
+
+            <div className="guide-grid">
+              <article className="guide-card">
+                <span className="guide-number">01</span>
+                <div className="guide-icon">
+                  <UploadCloud size={25} />
+                </div>
+                <h2>Choose your files</h2>
+                <p>
+                  Drag files into the upload box or select <strong>Browse files</strong>.
+                  You can add up to five files per batch, with a 4 MB limit for each file.
+                </p>
+              </article>
+
+              <article className="guide-card">
+                <span className="guide-number">02</span>
+                <div className="guide-icon">
+                  <Clock3 size={25} />
+                </div>
+                <h2>Set an expiry</h2>
+                <p>
+                  Choose 1 hour, 24 hours, 3 days, or 7 days. Add an optional title
+                  and note, then upload the files to the public shelf.
+                </p>
+              </article>
+
+              <article className="guide-card">
+                <span className="guide-number">03</span>
+                <div className="guide-icon">
+                  <Share2 size={25} />
+                </div>
+                <h2>Preview or download</h2>
+                <p>
+                  Images, audio, PDF, and text files can be viewed in the browser.
+                  Word documents are download-only. Anyone visiting the shelf can access them.
+                </p>
+              </article>
+
+              <article className="guide-card">
+                <span className="guide-number">04</span>
+                <div className="guide-icon">
+                  <Trash2 size={25} />
+                </div>
+                <h2>Manage your uploads</h2>
+                <p>
+                  Open <strong>My uploads</strong> in the same browser to find or delete
+                  your files early. They are removed automatically when their timer ends.
+                </p>
+              </article>
+            </div>
+
+            <div className="guide-notes">
+              <div>
+                <BookOpen size={24} />
+                <div>
+                  <h2>Good to know</h2>
+                  <p>Keep these details in mind before uploading.</p>
+                </div>
+              </div>
+              <ul>
+                <li>
+                  <CheckCircle2 size={17} />
+                  Everything uploaded is public—do not share private or sensitive files.
+                </li>
+                <li>
+                  <CheckCircle2 size={17} />
+                  Supported: JPG, PNG, GIF, WebP, MP3, WAV, OGG, M4A, PDF, TXT, MD, DOC, and DOCX.
+                </li>
+                <li>
+                  <CheckCircle2 size={17} />
+                  My uploads is saved only in this browser. Clearing browser data removes that list.
+                </li>
+              </ul>
+              <button type="button" onClick={goToUpload}>
+                <UploadCloud size={18} />
+                Upload a file
+              </button>
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="hero-section">
           <div className="hero-copy">
             <p className="eyebrow">
               <span />
@@ -431,9 +542,9 @@ function App() {
               By uploading, you confirm the file is safe and yours to share.
             </p>
           </div>
-        </section>
+            </section>
 
-        <section className="gallery-section">
+            <section className="gallery-section">
           <div className="section-heading">
             <div>
               <p className="eyebrow">
@@ -540,7 +651,9 @@ function App() {
               })}
             </div>
           )}
-        </section>
+            </section>
+          </>
+        )}
       </main>
 
       <footer>
